@@ -8,7 +8,7 @@ export default function Deployments({ dash }: { dash: Dash }) {
   const counts: Record<string, number> = {};
   s.devices.forEach((d) => { counts[d.fw] = (counts[d.fw] || 0) + 1; });
   const releases = [
-    { version: '4.2.1', date: 'Oct 8, 2026', notes: 'Vision model v7, OPC UA reconnect fix', status: s.rollPaused ? 'Paused' : 'Rolling out', color: s.rollPaused ? '#f0a43a' : '#d7f54a' },
+    { version: '4.2.1', date: 'Oct 8, 2026', notes: 'Vision model v7, OPC UA reconnect fix', status: s.rollPaused ? 'Paused' : 'Rolling out', color: s.rollPaused ? 'var(--warn)' : 'var(--accent)' },
     ...RELEASES,
   ];
 
@@ -28,7 +28,7 @@ export default function Deployments({ dash }: { dash: Dash }) {
           <PanelHead title="Firmware in fleet"><div className="panel-meta">{s.devices.length} devices</div></PanelHead>
           <div className="bars md">
             {Object.keys(counts).sort().reverse().map((v) => (
-              <Bar key={v} mono label={v} status={counts[v] + ' devices'} width={(counts[v] / s.devices.length * 100).toFixed(1) + '%'} color={v === '4.2.1' ? '#d7f54a' : '#5d636a'} />
+              <Bar key={v} mono label={v} status={counts[v] + ' devices'} width={(counts[v] / s.devices.length * 100).toFixed(1) + '%'} color={v === '4.2.1' ? 'var(--muted)' : 'var(--normal)'} />
             ))}
           </div>
         </section>

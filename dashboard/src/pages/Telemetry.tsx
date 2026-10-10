@@ -1,6 +1,6 @@
 import { LINES, LINE_NAMES, LINE_UNITS, avgOf, type TelMetric } from '../data';
 import type { Dash } from '../useDashboard';
-import { liveLabel } from '../components/Header';
+import { liveStatus } from '../selectors';
 import { AXIS_X, PanelHead, Tabs } from '../components/ui';
 
 const TABS: [TelMetric, string][] = [['latency', 'Latency'], ['throughput', 'Throughput'], ['cpu', 'CPU'], ['temp', 'Temperature']];
@@ -24,6 +24,7 @@ export default function Telemetry({ dash }: { dash: Dash }) {
   const byKey = s.telMetric === 'throughput' ? null : s.telMetric;
   const byLine = LINES.map((L) => ({ id: L, name: LINE_NAMES[L], v: byKey ? avgOf(s.devices.filter((d) => d.line === L), byKey) : LINE_UNITS[L] }));
   const bmax = Math.max(...byLine.map((b) => b.v));
+  const overLimit = (v: number) => (byKey === 'temp' && v > 65) || (byKey === 'cpu' && v > 75) || (byKey === 'latency' && v > s.sla);
 
   const stats: [string, number][] = [['Current', ts[n - 1]], ['Min · 60 min', mn], ['Avg · 60 min', av], ['Max · 60 min', mx]];
 
@@ -40,16 +41,16 @@ export default function Telemetry({ dash }: { dash: Dash }) {
       </section>
       <div className="row">
         <section className="panel wide">
-          <PanelHead title={title + ' · last 60 min'}><div className="panel-meta">{liveLabel(s.live, s.interval)}</div></PanelHead>
+          <PanelHead title={title + ' · last 60 min'}><div className="panel-meta">{liveStatus(s).label}</div></PanelHead>
           <div className="tel-chart">
             <div className="axis-y"><span>{f(hi)}</span><span>{f((hi + lo) / 2)}</span><span>{f(lo)}</span></div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
               <svg className="chart" viewBox="0 0 600 260" preserveAspectRatio="none" style={{ height: 260 }}>
-                <line x1="0" y1="1" x2="600" y2="1" stroke="#24292e" strokeWidth="1" />
-                <line x1="0" y1="130" x2="600" y2="130" stroke="#24292e" strokeWidth="1" />
-                <line x1="0" y1="259" x2="600" y2="259" stroke="#24292e" strokeWidth="1" />
-                <path d={'M0,260 ' + ts.map((v, i) => 'L' + X(i) + ',' + Y(v)).join(' ') + ' L600,260 Z'} fill="#d7f54a" opacity=".08" />
-                <polyline points={ts.map((v, i) => X(i) + ',' + Y(v)).join(' ')} fill="none" stroke="#d7f54a" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                <line x1="0" y1="1" x2="600" y2="1" style={{ stroke: 'var(--line)' }} strokeWidth="1" />
+                <line x1="0" y1="130" x2="600" y2="130" style={{ stroke: 'var(--line)' }} strokeWidth="1" />
+                <line x1="0" y1="259" x2="600" y2="259" style={{ stroke: 'var(--line)' }} strokeWidth="1" />
+                <path d={'M0,260 ' + ts.map((v, i) => 'L' + X(i) + ',' + Y(v)).join(' ') + ' L600,260 Z'} style={{ fill: 'var(--ink)' }} opacity=".06" />
+                <polyline points={ts.map((v, i) => X(i) + ',' + Y(v)).join(' ')} fill="none" style={{ stroke: 'var(--ink)' }} strokeWidth="2" vectorEffect="non-scaling-stroke" />
               </svg>
               {AXIS_X}
             </div>
@@ -61,7 +62,7 @@ export default function Telemetry({ dash }: { dash: Dash }) {
             {byLine.map((b) => (
               <div key={b.id} className="bar-item">
                 <div className="bar-head"><span>Line {b.id} · <span className="muted">{b.name}</span></span><span className="mono">{byKey ? f(b.v) : String(b.v)}</span></div>
-                <div className="track"><div style={{ width: (b.v / bmax * 100).toFixed(1) + '%', background: '#2f7fa6' }} /></div>
+                <div className="track"><div style={{ width: (b.v / bmax * 100).toFixed(1) + '%', background: overLimit(b.v) ? 'var(--warn)' : 'var(--muted)' }} /></div>
               </div>
             ))}
           </div>

@@ -33,14 +33,17 @@ export const LINE_NAMES: Record<LineId, string> = { A: 'Stamping', B: 'Welding',
 export const PROTO: Record<LineId, string> = { A: 'OPC UA', B: 'Modbus TCP', C: 'OPC UA', D: 'PROFINET', E: 'EtherNet/IP', F: 'MQTT' };
 export const LINE_OEE: Record<LineId, number> = { A: 89.2, B: 84.6, C: 86.1, D: 82.3, E: 91.4, F: 90.2 };
 export const LINE_UNITS: Record<LineId, number> = { A: 212, B: 184, C: 168, D: 176, E: 190, F: 198 };
-export const SEV: Record<Severity, [string, string]> = { crit: ['#ef5b4c', 'Critical'], warn: ['#f0a43a', 'Warning'], info: ['#6fa8dc', 'Info'] };
-export const HEAT = ['#1d3442', '#2f7fa6', '#d7c24a', '#f0a43a', '#ef5b4c'];
+export const SEV: Record<Severity, [string, string]> = { crit: ['var(--crit)', 'Critical'], warn: ['var(--warn)', 'Warning'], info: ['var(--dim)', 'Info'] };
+export const HEAT = ['#3a4148', '#4e5760', '#66707a', '#e39a32', '#e5533f'];
 export const STATUS: Record<DeviceStatus, [string, string]> = {
-  online: ['#3ecf8e', 'Online'],
-  degraded: ['#f0a43a', 'Degraded'],
-  offline: ['#5d636a', 'Offline'],
-  rebooting: ['#6fa8dc', 'Rebooting'],
+  online: ['var(--muted)', 'Online'],
+  degraded: ['var(--warn)', 'Degraded'],
+  offline: ['var(--crit)', 'Offline'],
+  rebooting: ['var(--info)', 'Rebooting'],
 };
+/** Floor-map cell fill per status; problems also carry a glyph so they read without colour. */
+export const CELL: Record<DeviceStatus, string> = { online: 'var(--normal)', degraded: 'var(--warn)', offline: 'var(--crit)', rebooting: 'var(--info)' };
+export const GLYPH: Record<DeviceStatus, string> = { online: '', degraded: '!', offline: '×', rebooting: '↻' };
 export const PAGES: Page[] = ['Overview', 'Devices', 'Lines', 'Telemetry', 'Alerts', 'Deployments', 'Settings'];
 export const PAGE_TITLES: Record<Page, string> = {
   Overview: 'Edge fleet overview',
@@ -143,9 +146,9 @@ export const INITIAL_ACKED: Alert[] = [
 ];
 
 export const RELEASES = [
-  { version: '4.1.7', date: 'Sep 12, 2026', notes: 'Thermal governor tuning for EG-200', status: 'Stable', color: '#3ecf8e' },
-  { version: '4.1.6', date: 'Aug 27, 2026', notes: 'Modbus polling regression', status: 'Rolled back', color: '#ef5b4c' },
-  { version: '4.1.5', date: 'Aug 20, 2026', notes: 'MQTT TLS 1.3, smaller OTA deltas', status: 'Superseded', color: '#8a9097' },
+  { version: '4.1.7', date: 'Sep 12, 2026', notes: 'Thermal governor tuning for EG-200', status: 'Stable', color: 'var(--ok)' },
+  { version: '4.1.6', date: 'Aug 27, 2026', notes: 'Modbus polling regression', status: 'Rolled back', color: 'var(--crit)' },
+  { version: '4.1.5', date: 'Aug 20, 2026', notes: 'MQTT TLS 1.3, smaller OTA deltas', status: 'Superseded', color: 'var(--muted)' },
 ];
 
 export const TOGGLES: [ToggleKey, string, string][] = [

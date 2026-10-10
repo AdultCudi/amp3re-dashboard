@@ -4,7 +4,16 @@ import {
   INITIAL_ACKED, INITIAL_ALERTS, clamp, healthy, makeDevices, series,
 } from './data';
 
+export type Theme = 'dark' | 'light';
+export type Conn = 'ok' | 'lost' | 'retrying';
+
 export interface DashState {
+  theme: Theme;
+  tv: boolean;
+  narrow: boolean;
+  loading: boolean;
+  conn: Conn;
+  lastSync: Date;
   devices: Device[];
   sel: string;
   line: string; // 'All' or a LineId
@@ -36,10 +45,21 @@ export interface DashState {
 export interface DashboardOptions {
   live?: boolean;
   floorMetric?: FloorMetric;
+  theme?: Theme;
+  simulateOutage?: boolean;
 }
+
+const NARROW = 900;
+const isNarrow = () => typeof window !== 'undefined' && window.innerWidth < NARROW;
 
 function initialState(opts: DashboardOptions): DashState {
   return {
+    theme: opts.theme ?? 'dark',
+    tv: false,
+    narrow: isNarrow(),
+    loading: true,
+    conn: opts.simulateOutage ? 'lost' : 'ok',
+    lastSync: new Date(),
     devices: makeDevices(),
     sel: 'D-07',
     line: 'All',
@@ -85,6 +105,7 @@ function tick(s: DashState): DashState {
     ...s,
     devices,
     now: new Date(),
+    lastSync: new Date(),
     oee: clamp(jitter(s.oee, 0.3), 85, 90),
     data: s.data + 0.002,
     rollCD: s.rollPaused ? s.rollCD : Math.min(100, s.rollCD + (Math.random() < 0.4 ? 1 : 0)),
@@ -107,13 +128,37 @@ export function useDashboard(opts: DashboardOptions) {
   // Sync externally controlled options (the prototype's Tweaks panel).
   useEffect(() => { if (opts.live != null) set({ live: opts.live }); }, [opts.live, set]);
   useEffect(() => { if (opts.floorMetric) set({ metric: opts.floorMetric }); }, [opts.floorMetric, set]);
+  useEffect(() => { if (opts.theme) set({ theme: opts.theme }); }, [opts.theme, set]);
+  useEffect(() => { set({ conn: opts.simulateOutage ? 'lost' : 'ok' }); }, [opts.simulateOutage, set]);
 
-  // Live stream: restarts whenever the interval or live flag changes.
+  // The page body sits outside the themed shell; paint it so overscroll matches.
+  useEffect(() => { document.body.style.background = state.theme === 'light' ? '#eceae4' : '#0e1012'; }, [state.theme]);
+
+  // Initial sync skeleton.
+  useEffect(() => { const t = setTimeout(() => set({ loading: false }), 1400); return () => clearTimeout(t); }, [set]);
+
   useEffect(() => {
-    if (!state.live) return;
+    const onResize = () => { const n = isNarrow(); setState((s) => (s.narrow === n ? s : { ...s, narrow: n })); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setState((s) => (s.tv ? { ...s, tv: false } : s)); };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('resize', onResize); window.removeEventListener('keydown', onKey); };
+  }, []);
+
+  // Control room rotates the floor colouring every 10s.
+  useEffect(() => {
+    if (!state.tv) return;
+    const next: Record<FloorMetric, FloorMetric> = { status: 'temperature', temperature: 'cpu', cpu: 'status' };
+    const t = setInterval(() => setState((s) => ({ ...s, metric: next[s.metric] })), 10000);
+    return () => clearInterval(t);
+  }, [state.tv]);
+
+  // Live stream: restarts whenever the interval, live flag or connection changes. No ticks while disconnected.
+  useEffect(() => {
+    if (!state.live || state.conn !== 'ok') return;
     const t = setInterval(() => setState(tick), state.interval);
     return () => clearInterval(t);
-  }, [state.live, state.interval]);
+  }, [state.live, state.interval, state.conn]);
 
   const timers = useRef<number[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -146,7 +191,12 @@ export function useDashboard(opts: DashboardOptions) {
     window.scrollTo(0, 0);
   }, [set]);
 
-  return { state, set, reboot, ack, go };
+  const retry = useCallback(() => {
+    set({ conn: 'retrying' });
+    timers.current.push(window.setTimeout(() => set({ conn: 'ok', lastSync: new Date() }), 1500));
+  }, [set]);
+
+  return { state, set, reboot, ack, go, retry };
 }
 
 export type Dash = ReturnType<typeof useDashboard>;

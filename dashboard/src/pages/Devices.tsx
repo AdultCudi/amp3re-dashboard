@@ -45,6 +45,13 @@ export default function Devices({ dash }: { dash: Dash }) {
             );
           })}
         </div></div>
+        {list.length === 0 && (
+          <div className="empty-state">
+            <div style={{ fontSize: 15 }}>No devices match these filters</div>
+            <div className="panel-sub">Try another line, status or search term.</div>
+            <button className="btn-quiet" onClick={() => dash.set({ line: 'All', status: 'All', query: '' })}>Clear filters</button>
+          </div>
+        )}
         <div className="table-foot">Showing {list.length} of {s.devices.length} devices</div>
       </section>
     </div>
