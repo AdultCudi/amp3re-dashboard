@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#0e1012;color:#e8e6e1;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#d7f54a;text-decoration:none}a:hover{color:#ecff8a;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;background:#0e1012;">
+  <sc-if value="{{ showSidebar }}" hint-placeholder-val="{{ true }}">
+  <aside style="position:sticky;top:0;height:100vh;overflow-y:auto;align-self:flex-start;width:208px;flex-shrink:0;border-right:1px solid #24292e;display:flex;flex-direction:column;padding:20px 14px;gap:28px;background:#0b0d0f;">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 6px;">
+      <div style="width:26px;height:26px;border:2px solid #d7f54a;display:grid;place-items:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;color:#d7f54a;">A</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;letter-spacing:-.01em;">amp3re</div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:2px;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+        <button onClick="{{ n.onClick }}" style="display:flex;justify-content:space-between;align-items:center;padding:9px 10px;font-size:14px;text-align:left;cursor:pointer;border:0;color:{{ n.color }};background:{{ n.bg }};border-left:2px solid {{ n.bar }};" style-hover="color:#e8e6e1;">
+          <span>{{ n.label }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#f0a43a;">{{ n.badge }}</span>
+        </button>
+      </sc-for>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid #24292e;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Edge cluster</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:7px;height:7px;border-radius:50%;background:#3ecf8e;"></span>MTY-04 · 3 nodes</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">Cloud sync 4s ago</div>
+    </div>
+  </aside>
+  </sc-if>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid #24292e;">
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;letter-spacing:.06em;text-transform:uppercase;">Plant 04 · Monterrey, MX</div>
+        <h1 style="margin:0;font-size:22px;font-weight:500;letter-spacing:-.01em;">{{ pageTitle }}</h1>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #24292e;font-family:'IBM Plex Mono',monospace;font-size:13px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:{{ liveDot }};"></span>{{ liveLabel }}
+        </div>
+        <div style="padding:8px 12px;border:1px solid #24292e;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#8a9097;">Shift 2 · <span style="color:#e8e6e1;">{{ clock }}</span></div>
+        <button onClick="{{ toggleLive }}" style="padding:8px 14px;background:#d7f54a;color:#0e1012;border:0;font-size:13px;font-weight:600;cursor:pointer;" style-hover="background:#ecff8a;">{{ liveBtn }}</button>
+      </div>
+    </header>
+
+    <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:#15181b;border:1px solid #24292e;">
+        <div style="background:#15181b;padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Devices online</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;">{{ kOnline }}<span style="font-size:15px;color:#5d636a;"> / {{ kTotal }}</span></div>
+          <div style="font-size:13px;color:#8a9097;">{{ kOnlinePct }} availability</div>
+        </div>
+        <div style="background:#15181b;padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Edge latency p95</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;">{{ kLatency }}<span style="font-size:15px;color:#5d636a;"> ms</span></div>
+          <div style="font-size:13px;color:{{ slaColor }};">{{ slaText }}</div>
+        </div>
+        <div style="background:#15181b;padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Plant OEE</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;">{{ kOee }}<span style="font-size:15px;color:#5d636a;"> %</span></div>
+          <div style="font-size:13px;color:#3ecf8e;">+1.2 vs. last shift</div>
+        </div>
+        <div style="background:#15181b;padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Processed at edge · 24h</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;">{{ kData }}<span style="font-size:15px;color:#5d636a;"> TB</span></div>
+          <div style="font-size:13px;color:#8a9097;">96.8% never left the plant</div>
+        </div>
+        <div style="background:#15181b;padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">Open alerts</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;color:{{ kAlertColor }};">{{ kAlerts }}</div>
+          <div style="font-size:13px;color:#8a9097;">{{ kCrit }} critical</div>
+        </div>
+      </section>
+
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+        <section style="flex:2 1 600px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <div style="font-size:15px;font-weight:500;">Plant floor</div>
+              <div style="font-size:13px;color:#8a9097;">6 lines · 108 edge devices · click a station</div>
+            </div>
+            <div style="display:flex;border:1px solid #24292e;">
+              <sc-for list="{{ metricTabs }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onClick }}" style="padding:6px 12px;border:0;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ t.bg }};color:{{ t.color }};">{{ t.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:10px;flex:1;">
+            <sc-for list="{{ floor }}" as="line" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;align-items:center;opacity:{{ line.opacity }};">
+                <div style="display:flex;flex-direction:column;gap:1px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;">Line {{ line.id }}</span>
+                  <span style="font-size:12px;color:#8a9097;">{{ line.name }}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px;">
+                  <sc-for list="{{ line.devices }}" as="d" hint-placeholder-count="18">
+                    <button title="{{ d.tip }}" onClick="{{ d.onClick }}" style="aspect-ratio:1;border:0;padding:0;cursor:pointer;background:{{ d.color }};box-shadow:{{ d.ring }};"></button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:auto;padding-top:12px;padding-left:116px;">
+              <sc-for list="{{ legend }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a9097;"><span style="width:10px;height:10px;background:{{ l.color }};"></span>{{ l.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="flex:1 1 300px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;">{{ sel.id }}</div>
+            <div style="display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid {{ sel.statusColor }};color:{{ sel.statusColor }};font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;">{{ sel.statusLabel }}</div>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:18px;flex:1;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <div style="font-size:15px;">{{ sel.model }}</div>
+              <div style="font-size:13px;color:#8a9097;">Line {{ sel.line }} · {{ sel.lineName }} · Station {{ sel.station }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#24292e;border:1px solid #24292e;">
+              <div style="background:#1b1f23;padding:12px;display:flex;flex-direction:column;gap:4px;"><span style="font-size:12px;color:#8a9097;">CPU</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;">{{ sel.cpu }}<span style="font-size:12px;color:#5d636a;"> %</span></span></div>
+              <div style="background:#1b1f23;padding:12px;display:flex;flex-direction:column;gap:4px;"><span style="font-size:12px;color:#8a9097;">SoC temp</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;">{{ sel.temp }}<span style="font-size:12px;color:#5d636a;"> °C</span></span></div>
+              <div style="background:#1b1f23;padding:12px;display:flex;flex-direction:column;gap:4px;"><span style="font-size:12px;color:#8a9097;">Inference latency</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;">{{ sel.latency }}<span style="font-size:12px;color:#5d636a;"> ms</span></span></div>
+              <div style="background:#1b1f23;padding:12px;display:flex;flex-direction:column;gap:4px;"><span style="font-size:12px;color:#8a9097;">Uptime</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;">{{ sel.uptime }}<span style="font-size:12px;color:#5d636a;"> d</span></span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+              <div style="display:flex;justify-content:space-between;"><span style="color:#8a9097;">Firmware</span><span style="font-family:'IBM Plex Mono',monospace;">{{ sel.fw }}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:#8a9097;">Address</span><span style="font-family:'IBM Plex Mono',monospace;">{{ sel.ip }}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:#8a9097;">Protocol</span><span style="font-family:'IBM Plex Mono',monospace;">{{ sel.proto }}</span></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:auto;">
+              <button onClick="{{ reboot }}" style="flex:1;padding:9px;background:transparent;color:#e8e6e1;border:1px solid #3a4046;font-size:13px;cursor:pointer;" style-hover="border-color:#8a9097;">{{ rebootLabel }}</button>
+              <button style="flex:1;padding:9px;background:#e8e6e1;color:#0e1012;border:0;font-size:13px;font-weight:500;cursor:pointer;" style-hover="background:#ffffff;">Open telemetry</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+        <section style="flex:2 1 600px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="font-size:15px;font-weight:500;">Throughput & edge latency</div>
+            <div style="display:flex;gap:16px;font-size:12px;color:#8a9097;">
+              <div style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:2px;background:#d7f54a;"></span>Latency p95 <span style="font-family:'IBM Plex Mono',monospace;color:#e8e6e1;">{{ curLat }} ms</span></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:#2f7fa6;"></span>Units/hr <span style="font-family:'IBM Plex Mono',monospace;color:#e8e6e1;">{{ curThr }}</span></div>
+            </div>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:6px;">
+            <svg viewBox="0 0 600 180" preserveAspectRatio="none" style="width:100%;height:200px;display:block;">
+              <line x1="0" y1="45" x2="600" y2="45" stroke="#24292e" stroke-width="1"></line>
+              <line x1="0" y1="90" x2="600" y2="90" stroke="#24292e" stroke-width="1"></line>
+              <line x1="0" y1="135" x2="600" y2="135" stroke="#24292e" stroke-width="1"></line>
+              <line x1="0" y1="60" x2="600" y2="60" stroke="#ef5b4c" stroke-width="1" stroke-dasharray="4 4" opacity=".6"></line>
+              <path d="{{ thrPath }}" fill="#2f7fa6" opacity=".35"></path>
+              <polyline points="{{ latPoints }}" fill="none" stroke="#d7f54a" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d636a;">
+              <span>−60 min</span><span>−45</span><span>−30</span><span>−15</span><span>now</span>
+            </div>
+            <div style="font-size:12px;color:#8a9097;">Dashed line: 15 ms SLA threshold</div>
+          </div>
+        </section>
+
+        <section style="flex:1 1 300px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="font-size:15px;font-weight:500;">Alerts</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ kAlerts }} open</div>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:3px minmax(0,1fr) auto;gap:12px;padding:12px 18px;border-bottom:1px solid #1f2327;align-items:center;">
+                <span style="align-self:stretch;background:{{ a.color }};"></span>
+                <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                  <span style="font-size:14px;">{{ a.title }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ a.meta }}</span>
+                </div>
+                <button onClick="{{ a.onAck }}" style="padding:5px 9px;background:transparent;border:1px solid #3a4046;color:#8a9097;font-size:12px;cursor:pointer;" style-hover="color:#e8e6e1;border-color:#8a9097;">Ack</button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:28px 18px;font-size:14px;color:#8a9097;">All clear. No open alerts.</div>
+            </sc-if>
+          </div>
+        </section>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+        <section style="flex:2 1 600px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="font-size:15px;font-weight:500;">Devices needing attention</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              <sc-for list="{{ lineChips }}" as="c" hint-placeholder-count="7">
+                <button onClick="{{ c.onClick }}" style="padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};">{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <div style="min-width:640px;">
+              <div style="display:grid;grid-template-columns:80px minmax(0,1.5fr) 100px 64px 64px 72px 72px;gap:12px;padding:10px 18px;border-bottom:1px solid #24292e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#5d636a;">
+                <span>Device</span><span>Model</span><span>Status</span><span>CPU</span><span>Temp</span><span>Latency</span><span>FW</span>
+              </div>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+                <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:80px minmax(0,1.5fr) 100px 64px 64px 72px 72px;gap:12px;padding:10px 18px;border-bottom:1px solid #1f2327;font-size:13px;cursor:pointer;align-items:center;background:{{ r.bg }};" style-hover="background:#1b1f23;">
+                  <span style="font-family:'IBM Plex Mono',monospace;">{{ r.id }}</span>
+                  <span style="color:#8a9097;">{{ r.model }}</span>
+                  <span style="display:flex;align-items:center;gap:6px;color:{{ r.statusColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.statusColor }};"></span>{{ r.statusLabel }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;">{{ r.cpu }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;">{{ r.temp }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;">{{ r.latency }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ r.fw }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="flex:1 1 300px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="font-size:15px;font-weight:500;">OTA rollout</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#d7f54a;">fw 4.2.1</div>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:18px;">
+            <sc-for list="{{ rollout }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span>{{ s.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ s.status }}</span>
+                </div>
+                <div style="height:6px;background:#24292e;"><div style="height:100%;width:{{ s.width }};background:{{ s.color }};"></div></div>
+              </div>
+            </sc-for>
+            <div style="font-size:13px;color:#8a9097;line-height:1.5;text-wrap:pretty;">Staged by line during changeovers. Auto-rollback if inference latency rises above 15 ms.</div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isDevices }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search ID or model" style="flex:1 1 220px;max-width:320px;padding:8px 12px;background:#15181b;border:1px solid #3a4046;color:#e8e6e1;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;">
+        <div style="display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ lineChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};">{{ c.label }}</button></sc-for></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ statusChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};">{{ c.label }}</button></sc-for></div>
+      </div>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="overflow-x:auto;"><div style="min-width:900px;">
+          <div style="display:grid;grid-template-columns:72px minmax(0,1.4fr) minmax(0,1fr) 100px 56px 60px 72px 56px 56px 96px 72px;gap:12px;padding:10px 18px;border-bottom:1px solid #24292e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;color:#5d636a;">
+            <span>Device</span><span>Model</span><span>Line</span><span>Status</span><span>CPU</span><span>Temp</span><span>Latency</span><span>Uptime</span><span>FW</span><span>Address</span><span></span>
+          </div>
+          <sc-for list="{{ devRows }}" as="r" hint-placeholder-count="10">
+            <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:72px minmax(0,1.4fr) minmax(0,1fr) 100px 56px 60px 72px 56px 56px 96px 72px;gap:12px;padding:9px 18px;border-bottom:1px solid #1f2327;font-size:13px;cursor:pointer;align-items:center;background:{{ r.bg }};" style-hover="background:#1b1f23;">
+              <span style="font-family:'IBM Plex Mono',monospace;">{{ r.id }}</span>
+              <span style="color:#8a9097;">{{ r.model }}</span>
+              <span style="color:#8a9097;">{{ r.line }}</span>
+              <span style="display:flex;align-items:center;gap:6px;color:{{ r.statusColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.statusColor }};"></span>{{ r.statusLabel }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;">{{ r.cpu }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;">{{ r.temp }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;">{{ r.latency }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ r.uptime }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ r.fw }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ r.ip }}</span>
+              <button onClick="{{ r.onReboot }}" style="padding:4px 8px;background:transparent;border:1px solid #3a4046;color:#8a9097;font-size:12px;cursor:pointer;" style-hover="color:#e8e6e1;border-color:#8a9097;">{{ r.rebootLabel }}</button>
+            </div>
+          </sc-for>
+        </div></div>
+        <div style="padding:12px 18px;font-size:13px;color:#8a9097;">{{ devCount }}</div>
+      </section>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isLines }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:20px;">
+        <sc-for list="{{ lineCards }}" as="l" hint-placeholder-count="6">
+          <button onClick="{{ l.onOpen }}" style="background:#15181b;border:1px solid #24292e;padding:0;text-align:left;color:#e8e6e1;cursor:pointer;display:flex;flex-direction:column;" style-hover="border-color:#3a4046;">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;width:100%;">
+              <div style="display:flex;flex-direction:column;gap:2px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;">Line {{ l.id }}</span><span style="font-size:13px;color:#8a9097;">{{ l.name }}</span></div>
+              <span style="padding:3px 8px;border:1px solid #3a4046;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a9097;">{{ l.proto }}</span>
+            </div>
+            <div style="padding:16px 18px;display:flex;flex-direction:column;gap:16px;width:100%;">
+              <div style="display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px;">
+                <sc-for list="{{ l.cells }}" as="c" hint-placeholder-count="18"><span style="aspect-ratio:1;background:{{ c.color }};"></span></sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 12px;">
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">Online</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.online }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">OEE</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.oee }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">Units/hr</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.units }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">Avg temp</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.temp }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">Avg CPU</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.cpu }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:#8a9097;">Latency</span><span style="font-family:'IBM Plex Mono',monospace;font-size:16px;">{{ l.latency }}</span></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px solid #24292e;padding-top:12px;">
+                <span style="color:{{ l.issuesColor }};">{{ l.issues }}</span><span style="color:#8a9097;">View devices →</span>
+              </div>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isTelemetry }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;border:1px solid #24292e;align-self:flex-start;flex-wrap:wrap;">
+        <sc-for list="{{ telTabs }}" as="t" hint-placeholder-count="4">
+          <button onClick="{{ t.onClick }}" style="padding:8px 14px;border:0;font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer;background:{{ t.bg }};color:{{ t.color }};">{{ t.label }}</button>
+        </sc-for>
+      </div>
+      <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));background:#15181b;border:1px solid #24292e;">
+        <sc-for list="{{ telStats }}" as="k" hint-placeholder-count="4">
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a9097;">{{ k.label }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:500;letter-spacing:-.02em;">{{ k.value }}<span style="font-size:14px;color:#5d636a;"> {{ k.unit }}</span></div>
+          </div>
+        </sc-for>
+      </section>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+        <section style="flex:2 1 600px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">{{ telTitle }} · last 60 min</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ liveLabel }}</div></div>
+          <div style="padding:18px;display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;">
+            <div style="display:flex;flex-direction:column;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d636a;text-align:right;height:260px;">
+              <span>{{ telHi }}</span><span>{{ telMid }}</span><span>{{ telLo }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+              <svg viewBox="0 0 600 260" preserveAspectRatio="none" style="width:100%;height:260px;display:block;">
+                <line x1="0" y1="1" x2="600" y2="1" stroke="#24292e" stroke-width="1"></line>
+                <line x1="0" y1="130" x2="600" y2="130" stroke="#24292e" stroke-width="1"></line>
+                <line x1="0" y1="259" x2="600" y2="259" stroke="#24292e" stroke-width="1"></line>
+                <path d="{{ telArea }}" fill="#d7f54a" opacity=".08"></path>
+                <polyline points="{{ telPoints }}" fill="none" stroke="#d7f54a" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>
+              </svg>
+              <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d636a;"><span>−60 min</span><span>−45</span><span>−30</span><span>−15</span><span>now</span></div>
+            </div>
+          </div>
+        </section>
+        <section style="flex:1 1 300px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">By line</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ telUnit }}</div></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:16px;">
+            <sc-for list="{{ telByLine }}" as="b" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;"><span>Line {{ b.id }} · <span style="color:#8a9097;">{{ b.name }}</span></span><span style="font-family:'IBM Plex Mono',monospace;">{{ b.value }}</span></div>
+                <div style="height:6px;background:#24292e;"><div style="height:100%;width:{{ b.width }};background:#2f7fa6;"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ sevTabs }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};">{{ c.label }}</button></sc-for></div>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Open</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ openCount }}</div></div>
+        <sc-for list="{{ openAlerts }}" as="a" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:3px 84px minmax(0,1fr) auto;gap:14px;padding:12px 18px;border-bottom:1px solid #1f2327;align-items:center;">
+            <span style="align-self:stretch;background:{{ a.color }};"></span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:{{ a.color }};">{{ a.sevLabel }}</span>
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0;"><span style="font-size:14px;">{{ a.title }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ a.meta }}</span></div>
+            <button onClick="{{ a.onAck }}" style="padding:6px 12px;background:transparent;border:1px solid #3a4046;color:#e8e6e1;font-size:12px;cursor:pointer;" style-hover="border-color:#8a9097;">Acknowledge</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noOpen }}" hint-placeholder-val="{{ false }}"><div style="padding:24px 18px;font-size:14px;color:#8a9097;">Nothing open in this filter.</div></sc-if>
+      </section>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Acknowledged</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">This shift</div></div>
+        <sc-for list="{{ ackedAlerts }}" as="a" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:3px 84px minmax(0,1fr);gap:14px;padding:12px 18px;border-bottom:1px solid #1f2327;align-items:center;opacity:.7;">
+            <span style="align-self:stretch;background:{{ a.color }};"></span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:{{ a.color }};">{{ a.sevLabel }}</span>
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0;"><span style="font-size:14px;">{{ a.title }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ a.meta }}</span></div>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isDeployments }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+        <section style="flex:2 1 600px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;">
+            <div style="display:flex;flex-direction:column;gap:2px;"><div style="font-size:15px;font-weight:500;">Rollout · fw 4.2.1</div><div style="font-size:13px;color:#8a9097;">Started Oct 8, 2026 · staged by line during changeovers</div></div>
+            <button onClick="{{ toggleRoll }}" style="padding:8px 14px;background:#d7f54a;color:#0e1012;border:0;font-size:13px;font-weight:600;cursor:pointer;" style-hover="background:#ecff8a;">{{ rollBtn }}</button>
+          </div>
+          <div style="padding:20px 18px;display:flex;flex-direction:column;gap:22px;">
+            <sc-for list="{{ rollout }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span>{{ s.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ s.status }}</span></div>
+                <div style="height:8px;background:#24292e;"><div style="height:100%;width:{{ s.width }};background:{{ s.color }};"></div></div>
+              </div>
+            </sc-for>
+            <div style="font-size:13px;color:#8a9097;">Auto-rollback if inference latency rises above the SLA threshold.</div>
+          </div>
+        </section>
+        <section style="flex:1 1 300px;min-width:0;background:#15181b;border:1px solid #24292e;display:flex;flex-direction:column;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Firmware in fleet</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9097;">{{ kTotal }} devices</div></div>
+          <div style="padding:20px 18px;display:flex;flex-direction:column;gap:18px;">
+            <sc-for list="{{ fwDist }}" as="f" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace;">{{ f.version }}</span><span style="font-family:'IBM Plex Mono',monospace;color:#8a9097;">{{ f.count }}</span></div>
+                <div style="height:8px;background:#24292e;"><div style="height:100%;width:{{ f.width }};background:{{ f.color }};"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Release history</div></div>
+        <sc-for list="{{ releases }}" as="r" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:80px 120px minmax(0,1fr) 110px;gap:16px;padding:12px 18px;border-bottom:1px solid #1f2327;font-size:13px;align-items:center;">
+            <span style="font-family:'IBM Plex Mono',monospace;">{{ r.version }}</span>
+            <span style="color:#8a9097;">{{ r.date }}</span>
+            <span>{{ r.notes }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:{{ r.color }};text-align:right;">{{ r.status }}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px;display:flex;flex-direction:column;gap:20px;max-width:860px;">
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Plant</div></div>
+        <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#8a9097;">Plant name<input value="{{ plantName }}" onChange="{{ onPlant }}" style="padding:9px 12px;background:#0e1012;border:1px solid #3a4046;color:#e8e6e1;font-size:14px;font-family:inherit;outline:none;"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#8a9097;">Time zone<input value="America/Monterrey (UTC−6)" readOnly="{{ true }}" style="padding:9px 12px;background:#0e1012;border:1px solid #24292e;color:#8a9097;font-size:14px;font-family:inherit;outline:none;"></label>
+        </div>
+      </section>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Telemetry</div></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:18px;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+            <div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:14px;">Stream interval</span><span style="font-size:13px;color:#8a9097;">How often the dashboard pulls from the edge cluster</span></div>
+            <div style="display:flex;border:1px solid #24292e;"><sc-for list="{{ intervalTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="padding:6px 14px;border:0;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;background:{{ t.bg }};color:{{ t.color }};">{{ t.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+            <div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:14px;">Latency SLA</span><span style="font-size:13px;color:#8a9097;">p95 threshold used for alerts and auto-rollback</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><input type="number" value="{{ sla }}" onChange="{{ onSla }}" style="width:80px;padding:7px 10px;background:#0e1012;border:1px solid #3a4046;color:#e8e6e1;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#8a9097;">ms</span></div>
+          </div>
+        </div>
+      </section>
+      <section style="background:#15181b;border:1px solid #24292e;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #24292e;"><div style="font-size:15px;font-weight:500;">Notifications & firmware</div></div>
+        <div style="padding:6px 18px;display:flex;flex-direction:column;">
+          <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="6">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid #1f2327;">
+              <div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:14px;">{{ t.label }}</span><span style="font-size:13px;color:#8a9097;">{{ t.desc }}</span></div>
+              <button onClick="{{ t.onClick }}" style="width:40px;height:22px;flex-shrink:0;padding:3px;border:0;cursor:pointer;display:flex;justify-content:{{ t.justify }};background:{{ t.bg }};"><span style="width:16px;height:16px;background:{{ t.knob }};"></span></button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <div style="display:flex;justify-content:flex-end;gap:12px;align-items:center;">
+        <span style="font-size:13px;color:#3ecf8e;">{{ savedMsg }}</span>
+        <button onClick="{{ save }}" style="padding:9px 18px;background:#d7f54a;color:#0e1012;border:0;font-size:13px;font-weight:600;cursor:pointer;" style-hover="background:#ecff8a;">Save changes</button>
+      </div>
+    </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;live&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;floorMetric&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;status&quot;,&quot;temperature&quot;,&quot;cpu&quot;],&quot;default&quot;:&quot;status&quot;,&quot;tsType&quot;:&quot;'status'|'temperature'|'cpu'&quot;},&quot;showSidebar&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const LINES = ['A','B','C','D','E','F'];
+const LINE_NAMES = {A:'Stamping',B:'Welding',C:'Paint',D:'Assembly',E:'Inspection',F:'Packaging'};
+const PROTO = {A:'OPC UA',B:'Modbus TCP',C:'OPC UA',D:'PROFINET',E:'EtherNet/IP',F:'MQTT'};
+const LINE_OEE = {A:89.2,B:84.6,C:86.1,D:82.3,E:91.4,F:90.2};
+const LINE_UNITS = {A:212,B:184,C:168,D:176,E:190,F:198};
+const SEV = {crit:['#ef5b4c','Critical'],warn:['#f0a43a','Warning'],info:['#6fa8dc','Info']};
+const HEAT = ['#1d3442','#2f7fa6','#d7c24a','#f0a43a','#ef5b4c'];
+const STATUS = {online:['#3ecf8e','Online'],degraded:['#f0a43a','Degraded'],offline:['#5d636a','Offline'],rebooting:['#6fa8dc','Rebooting']};
+const hex = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+function scale(v,min,max){const t=Math.max(0,Math.min(1,(v-min)/(max-min)))*(HEAT.length-1);const i=Math.min(HEAT.length-2,Math.floor(t));const f=t-i;const a=hex(HEAT[i]),b=hex(HEAT[i+1]);return 'rgb('+a.map((x,k)=>Math.round(x+(b[k]-x)*f)).join(',')+')';}
+function rng(s){return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function healthy(r){return {cpu:20+r()*38,temp:38+r()*18,latency:4+r()*6};}
+function makeDevices(){
+  const r=rng(42),out=[];
+  LINES.forEach((L,li)=>{for(let s=1;s<=18;s++){
+    const model=s%6===0?'EG-200 Gateway':s%3===0?'EV-12 Vision':'EN-40 Sensor node';
+    const x=r();let status=x<0.025?'offline':x<0.07?'degraded':'online';
+    const id=L+'-'+String(s).padStart(2,'0');
+    if(id==='D-07'||id==='C-12'||id==='B-03')status='degraded';
+    if(id==='F-14')status='offline';
+    let m=healthy(r);
+    if(status==='degraded')m={cpu:82+r()*12,temp:68+r()*10,latency:17+r()*20};
+    out.push({id,line:L,station:s,model,status,...m,uptime:Math.round(4+r()*120),
+      fw:li<2?'4.2.1':li<4?(r()<0.64?'4.2.1':'4.1.7'):'4.1.7',ip:'10.4.'+(li+10)+'.'+(s+20)});
+  }});
+  return out;
+}
+function series(n,base,amp,seed){const r=rng(seed);let v=base;return Array.from({length:n},()=>{v=v+(r()-.5)*amp;v=clamp(v,base-amp*2,base+amp*2);return v;});}
+
+class Component extends DCLogic {
+  state = {
+    devices: makeDevices(), sel:'D-07', line:'All', metric:this.props.floorMetric ?? 'status',
+    live: this.props.live ?? true, now: new Date(), oee: 87.4, data: 2.41, rollCD: 64,
+    lat: series(60,8.4,1.6,7), thr: series(60,1080,60,9), cpuS: series(60,39,1.5,11), tempS: series(60,47,.6,13),
+    page:'Overview', query:'', status:'All', telMetric:'latency', sevFilter:'All', rollPaused:false, interval:2000, sla:15,
+    plantName:'Plant 04 · Monterrey', saved:false,
+    toggles:{email:true,sms:true,slack:false,escalate:true,rollback:true,changeover:true},
+    acked:[
+      {id:91,sev:'warn',title:'Camera exposure drift',meta:'E-09 · EV-12 · acked 12:58'},
+      {id:92,sev:'info',title:'Gateway failover test passed',meta:'A-12 · EG-200 · acked 12:20'},
+      {id:93,sev:'crit',title:'PLC link timeout',meta:'D-02 · EN-40 · acked 11:47'},
+    ],
+    alerts: [
+      {id:1,sev:'crit',title:'Spindle vibration over threshold',meta:'D-07 · EV-12 · 2m ago'},
+      {id:2,sev:'crit',title:'Device unreachable',meta:'F-14 · EN-40 · 26m ago'},
+      {id:3,sev:'warn',title:'Thermal throttling active',meta:'C-12 · EG-200 · 9m ago'},
+      {id:4,sev:'warn',title:'Uplink packet loss 4.1%',meta:'B-03 · EN-40 · 14m ago'},
+      {id:5,sev:'info',title:'Firmware 4.2.1 applied, batch 3',meta:'Line C · 31m ago'},
+    ],
+  };
+  componentDidMount(){ this.restart(); }
+  restart(){ clearInterval(this.t); this.t=setInterval(()=>this.state.live&&this.tick(),this.state.interval); }
+  reboot(id){const d=this.state.devices.find(x=>x.id===id);if(!d||d.status==='rebooting')return;this.setDev(id,{status:'rebooting'});
+    setTimeout(()=>this.setDev(id,{status:'online',uptime:0,...healthy(Math.random)}),4000);}
+  ack(id){this.setState(st=>{const a=st.alerts.find(x=>x.id===id);if(!a)return null;
+    const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});
+    return {alerts:st.alerts.filter(x=>x.id!==id),acked:[{...a,meta:a.meta.replace(/ · [^·]*ago$/,'')+' · acked '+t},...st.acked]};});}
+  componentWillUnmount(){ clearInterval(this.t); clearTimeout(this.rb); }
+  componentDidUpdate(p){
+    if(p.live!==this.props.live&&this.props.live!=null)this.setState({live:this.props.live});
+    if(p.floorMetric!==this.props.floorMetric&&this.props.floorMetric)this.setState({metric:this.props.floorMetric});
+  }
+  tick(){
+    this.setState(s=>{
+      const j=(v,a)=>v+(Math.random()-.5)*a;
+      const devices=s.devices.map(d=>(d.status==='online'||d.status==='degraded')?{...d,
+        cpu:clamp(j(d.cpu,6),8,99),temp:clamp(j(d.temp,1.2),32,85),latency:clamp(j(d.latency,1),2.5,45)}:d);
+      const up=devices.filter(d=>d.status==='online');const av=k=>up.reduce((a,d)=>a+d[k],0)/(up.length||1);
+      const lastL=s.lat[s.lat.length-1],lastT=s.thr[s.thr.length-1];
+      return {devices,now:new Date(),oee:clamp(j(s.oee,.3),85,90),data:s.data+0.002,
+        rollCD:s.rollPaused?s.rollCD:Math.min(100,s.rollCD+(Math.random()<.4?1:0)),
+        cpuS:[...s.cpuS.slice(1),av('cpu')],tempS:[...s.tempS.slice(1),av('temp')],
+        lat:[...s.lat.slice(1),clamp(j(lastL,1.4),5,13)],thr:[...s.thr.slice(1),clamp(j(lastT,40),950,1200)]};
+    });
+  }
+  extra(){
+    const s=this.state,devs=s.devices,P=s.page;
+    const titles={Overview:'Edge fleet overview',Devices:'Devices',Lines:'Production lines',Telemetry:'Telemetry',Alerts:'Alerts',Deployments:'Firmware deployments',Settings:'Settings'};
+    const isOff=d=>d.status==='offline'||d.status==='rebooting';
+    const chips=(opts,cur,set)=>opts.map(o=>{const v=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return {label:l,bg:cur===v?'#e8e6e1':'transparent',color:cur===v?'#0e1012':'#8a9097',border:cur===v?'#e8e6e1':'#3a4046',onClick:()=>set(v)};});
+    const tabs=(opts,cur,set)=>opts.map(([v,l])=>({label:l,bg:cur===v?'#e8e6e1':'transparent',color:cur===v?'#0e1012':'#8a9097',onClick:()=>set(v)}));
+    const q=s.query.trim().toLowerCase();
+    const list=devs.filter(d=>(s.line==='All'||d.line===s.line)&&(s.status==='All'||d.status===s.status.toLowerCase())&&(!q||d.id.toLowerCase().includes(q)||d.model.toLowerCase().includes(q)));
+    const devRows=list.map(d=>{const off=isOff(d);return {id:d.id,model:d.model,line:d.line+' · '+LINE_NAMES[d.line],fw:d.fw,ip:d.ip,
+      uptime:(d.status==='rebooting'?0:d.uptime)+' d',statusColor:STATUS[d.status][0],statusLabel:STATUS[d.status][1],
+      cpu:off?'—':Math.round(d.cpu)+'%',temp:off?'—':d.temp.toFixed(1)+'°',latency:off?'—':d.latency.toFixed(1)+' ms',
+      bg:d.id===s.sel?'#1b1f23':'transparent',onClick:()=>this.setState({sel:d.id}),
+      onReboot:e=>{e.stopPropagation();this.reboot(d.id);},rebootLabel:d.status==='rebooting'?'…':'Reboot'};});
+    const avgOf=(ds,k)=>{const up=ds.filter(d=>!isOff(d));return up.reduce((a,d)=>a+d[k],0)/(up.length||1);};
+    const lineCards=LINES.map(L=>{const ds=devs.filter(d=>d.line===L);const up=ds.filter(d=>!isOff(d));const bad=ds.filter(d=>d.status!=='online').length;
+      return {id:L,name:LINE_NAMES[L],proto:PROTO[L],online:up.length+' / '+ds.length,temp:avgOf(ds,'temp').toFixed(1)+'°',cpu:Math.round(avgOf(ds,'cpu'))+'%',
+        latency:avgOf(ds,'latency').toFixed(1)+' ms',oee:LINE_OEE[L].toFixed(1)+'%',units:LINE_UNITS[L],
+        issues:bad?bad+' need attention':'All healthy',issuesColor:bad?'#f0a43a':'#3ecf8e',
+        cells:ds.map(d=>({color:d.status==='offline'?'#2a2f34':STATUS[d.status][0]})),
+        onOpen:()=>{this.setState({page:'Devices',line:L,status:'All',query:''});window.scrollTo(0,0);}};});
+    const TM={latency:['Latency p95','ms',s.lat,1],throughput:['Throughput','units/hr',s.thr,0],cpu:['Avg CPU','%',s.cpuS,0],temp:['Avg SoC temp','°C',s.tempS,1]};
+    const [tl,tu,ts,td]=TM[s.telMetric];
+    const mn=Math.min(...ts),mx=Math.max(...ts),av=ts.reduce((a,b)=>a+b,0)/ts.length,pad=(mx-mn)*.2||1,lo=mn-pad,hi=mx+pad,n=ts.length;
+    const Y=v=>(260-(v-lo)/(hi-lo)*260).toFixed(1),X=i=>(i/(n-1)*600).toFixed(1),f=v=>v.toFixed(td);
+    const byKey={latency:'latency',cpu:'cpu',temp:'temp'}[s.telMetric];
+    const bl=LINES.map(L=>({id:L,name:LINE_NAMES[L],v:byKey?avgOf(devs.filter(d=>d.line===L),byKey):LINE_UNITS[L]}));
+    const bmax=Math.max(...bl.map(b=>b.v));
+    const sevMap={All:null,Critical:'crit',Warning:'warn',Info:'info'};
+    const open=s.alerts.filter(a=>!sevMap[s.sevFilter]||a.sev===sevMap[s.sevFilter]);
+    const fwC={};devs.forEach(d=>fwC[d.fw]=(fwC[d.fw]||0)+1);
+    const TG=[['email','Email alerts','Critical and warning alerts to the plant on-call list'],['sms','SMS for critical','Text the shift supervisor on critical alerts'],
+      ['slack','Slack channel','Post all alerts to #mty04-edge'],['escalate','Escalate after 10 min','Page maintenance lead if a critical alert stays open'],
+      ['rollback','Auto-rollback','Revert firmware if latency exceeds the SLA after an update'],['changeover','Update only during changeovers','Hold installs until a line is idle']];
+    return {
+      pageTitle:titles[P],isOverview:P==='Overview',isDevices:P==='Devices',isLines:P==='Lines',isTelemetry:P==='Telemetry',
+      isAlerts:P==='Alerts',isDeployments:P==='Deployments',isSettings:P==='Settings',
+      query:s.query,onQuery:e=>this.setState({query:e.target.value}),
+      statusChips:chips(['All','Online','Degraded','Offline'],s.status,v=>this.setState({status:v})),
+      devRows,devCount:'Showing '+list.length+' of '+devs.length+' devices',lineCards,
+      telTabs:tabs([['latency','Latency'],['throughput','Throughput'],['cpu','CPU'],['temp','Temperature']],s.telMetric,v=>this.setState({telMetric:v})),
+      telTitle:tl,telUnit:tu,telHi:f(hi),telMid:f((hi+lo)/2),telLo:f(lo),
+      telStats:[['Current',ts[n-1]],['Min · 60 min',mn],['Avg · 60 min',av],['Max · 60 min',mx]].map(([label,v])=>({label,value:s.telMetric==='throughput'?Math.round(v).toLocaleString():f(v),unit:tu})),
+      telPoints:ts.map((v,i)=>X(i)+','+Y(v)).join(' '),
+      telArea:'M0,260 '+ts.map((v,i)=>'L'+X(i)+','+Y(v)).join(' ')+' L600,260 Z',
+      telByLine:bl.map(b=>({id:b.id,name:b.name,value:byKey?f(b.v):String(b.v),width:(b.v/bmax*100).toFixed(1)+'%'})),
+      sevTabs:chips(['All','Critical','Warning','Info'].map(k=>[k,k+' · '+(sevMap[k]?s.alerts.filter(a=>a.sev===sevMap[k]).length:s.alerts.length)]),s.sevFilter,v=>this.setState({sevFilter:v})),
+      openAlerts:open.map(a=>({...a,color:SEV[a.sev][0],sevLabel:SEV[a.sev][1],onAck:()=>this.ack(a.id)})),
+      openCount:open.length+' open',noOpen:open.length===0,
+      ackedAlerts:s.acked.map(a=>({...a,color:SEV[a.sev][0],sevLabel:SEV[a.sev][1]})),
+      rollBtn:s.rollPaused?'Resume rollout':'Pause rollout',toggleRoll:()=>this.setState(st=>({rollPaused:!st.rollPaused})),
+      fwDist:Object.keys(fwC).sort().reverse().map(v=>({version:v,count:fwC[v]+' devices',width:(fwC[v]/devs.length*100).toFixed(1)+'%',color:v==='4.2.1'?'#d7f54a':'#5d636a'})),
+      releases:[
+        {version:'4.2.1',date:'Oct 8, 2026',notes:'Vision model v7, OPC UA reconnect fix',status:s.rollPaused?'Paused':'Rolling out',color:s.rollPaused?'#f0a43a':'#d7f54a'},
+        {version:'4.1.7',date:'Sep 12, 2026',notes:'Thermal governor tuning for EG-200',status:'Stable',color:'#3ecf8e'},
+        {version:'4.1.6',date:'Aug 27, 2026',notes:'Modbus polling regression',status:'Rolled back',color:'#ef5b4c'},
+        {version:'4.1.5',date:'Aug 20, 2026',notes:'MQTT TLS 1.3, smaller OTA deltas',status:'Superseded',color:'#8a9097'},
+      ],
+      plantName:s.plantName,onPlant:e=>this.setState({plantName:e.target.value,saved:false}),
+      intervalTabs:tabs([[1000,'1s'],[2000,'2s'],[5000,'5s']],s.interval,v=>this.setState({interval:v,saved:false},()=>this.restart())),
+      sla:s.sla,onSla:e=>this.setState({sla:Math.max(1,Number(e.target.value)||1),saved:false}),
+      toggles:TG.map(([k,label,desc])=>{const on=s.toggles[k];return {label,desc,bg:on?'#d7f54a':'#3a4046',justify:on?'flex-end':'flex-start',knob:on?'#0e1012':'#8a9097',
+        onClick:()=>this.setState(st=>({toggles:{...st.toggles,[k]:!st.toggles[k]},saved:false}))};}),
+      savedMsg:s.saved?'Saved':'',save:()=>this.setState({saved:true}),
+    };
+  }
+  setDev(id,patch){this.setState(s=>({devices:s.devices.map(d=>d.id===id?{...d,...patch}:d)}));}
+  renderVals(){
+    const s=this.state, devs=s.devices;
+    const sel=devs.find(d=>d.id===s.sel)||devs[0];
+    const online=devs.filter(d=>d.status==='online'||d.status==='degraded');
+    const up=devs.filter(d=>d.status==='online');
+    const p95=[...up.map(d=>d.latency)].sort((a,b)=>a-b)[Math.floor(up.length*.95)]||0;
+    const color=d=>{
+      if(d.status==='offline')return '#2a2f34';
+      if(d.status==='rebooting')return '#6fa8dc';
+      if(s.metric==='temperature')return scale(d.temp,35,80);
+      if(s.metric==='cpu')return scale(d.cpu,0,100);
+      return STATUS[d.status][0];
+    };
+    const floor=LINES.map(L=>({id:L,name:LINE_NAMES[L],opacity:s.line==='All'||s.line===L?1:.25,
+      devices:devs.filter(d=>d.line===L).map(d=>({color:color(d),
+        ring:d.id===sel.id?'0 0 0 2px #15181b, 0 0 0 4px #e8e6e1':'none',
+        tip:d.id+' · '+d.model+' · '+STATUS[d.status][1],onClick:()=>this.setState({sel:d.id})}))}));
+    const legend=s.metric==='status'
+      ?[{label:'Online',color:'#3ecf8e'},{label:'Degraded',color:'#f0a43a'},{label:'Offline',color:'#2a2f34'},{label:'Rebooting',color:'#6fa8dc'}]
+      :s.metric==='temperature'
+        ?[{label:'35 °C',color:HEAT[0]},{label:'50 °C',color:HEAT[1]},{label:'65 °C',color:HEAT[3]},{label:'80 °C',color:HEAT[4]}]
+        :[{label:'0%',color:HEAT[0]},{label:'35%',color:HEAT[1]},{label:'70%',color:HEAT[3]},{label:'100%',color:HEAT[4]}];
+    const rank={offline:0,degraded:1,rebooting:2,online:3};
+    const rows=devs.filter(d=>s.line==='All'||d.line===s.line)
+      .sort((a,b)=>rank[a.status]-rank[b.status]||b.temp-a.temp).slice(0,8)
+      .map(d=>{const off=d.status==='offline'||d.status==='rebooting';return {id:d.id,model:d.model,fw:d.fw,
+        statusColor:STATUS[d.status][0],statusLabel:STATUS[d.status][1],
+        cpu:off?'—':Math.round(d.cpu)+'%',temp:off?'—':d.temp.toFixed(1)+'°',latency:off?'—':d.latency.toFixed(1)+' ms',
+        bg:d.id===sel.id?'#1b1f23':'transparent',onClick:()=>this.setState({sel:d.id})};});
+    const sevColor={crit:'#ef5b4c',warn:'#f0a43a',info:'#6fa8dc'};
+    const alerts=s.alerts.map(a=>({...a,color:sevColor[a.sev],onAck:()=>this.ack(a.id)}));
+    const W=600,H=180,n=s.lat.length;
+    const latPoints=s.lat.map((v,i)=>(i/(n-1)*W).toFixed(1)+','+(H-v/20*H*.8-10).toFixed(1)).join(' ');
+    const thrPath='M0,'+H+' '+s.thr.map((v,i)=>'L'+(i/(n-1)*W).toFixed(1)+','+(H-(v-800)/500*H*.75).toFixed(1)).join(' ')+' L'+W+','+H+' Z';
+    const off=sel.status==='offline'||sel.status==='rebooting';
+    const crit=s.alerts.filter(a=>a.sev==='crit').length;
+    const roll=(label,pct,queued)=>({label,status:queued?'Queued':pct>=100?'Complete':pct+'%',width:pct+'%',color:pct>=100?'#3ecf8e':'#d7f54a'});
+    const navItems=['Overview','Devices','Lines','Telemetry','Alerts','Deployments','Settings'];
+    return {...this.extra(),
+      showSidebar:this.props.showSidebar ?? true,
+      nav:navItems.map((l,i)=>({label:l,badge:l==='Alerts'?String(s.alerts.length||''):'',
+        color:s.page===l?'#e8e6e1':'#8a9097',bg:s.page===l?'#15181b':'transparent',bar:s.page===l?'#d7f54a':'transparent',onClick:()=>{this.setState({page:l});window.scrollTo(0,0);}})),
+      clock:s.now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}),
+      liveDot:s.live?'#3ecf8e':'#5d636a',liveLabel:s.live?'Live · '+(s.interval/1000)+'s':'Paused',liveBtn:s.live?'Pause stream':'Resume stream',
+      toggleLive:()=>this.setState(st=>({live:!st.live})),
+      kOnline:online.length.toLocaleString(),kTotal:devs.length,kOnlinePct:(online.length/devs.length*100).toFixed(1)+'%',
+      kLatency:p95.toFixed(1),slaText:(p95>s.sla?'Over ':'Within ')+s.sla+' ms SLA',slaColor:p95>s.sla?'#ef5b4c':'#3ecf8e',kOee:s.oee.toFixed(1),kData:s.data.toFixed(2),
+      kAlerts:s.alerts.length,kCrit:crit,kAlertColor:crit?'#ef5b4c':'#e8e6e1',noAlerts:s.alerts.length===0,
+      metricTabs:[['status','Status'],['temperature','Temp'],['cpu','CPU']].map(([k,l])=>({label:l,
+        bg:s.metric===k?'#e8e6e1':'transparent',color:s.metric===k?'#0e1012':'#8a9097',onClick:()=>this.setState({metric:k})})),
+      floor,legend,rows,alerts,latPoints,thrPath,
+      curLat:s.lat[n-1].toFixed(1),curThr:Math.round(s.thr[n-1]).toLocaleString(),
+      lineChips:['All',...LINES].map(L=>({label:L,bg:s.line===L?'#e8e6e1':'transparent',color:s.line===L?'#0e1012':'#8a9097',
+        border:s.line===L?'#e8e6e1':'#3a4046',onClick:()=>this.setState({line:L})})),
+      sel:{id:sel.id,model:sel.model,line:sel.line,lineName:LINE_NAMES[sel.line],station:sel.station,fw:sel.fw,ip:sel.ip,proto:PROTO[sel.line],
+        statusColor:STATUS[sel.status][0],statusLabel:STATUS[sel.status][1],
+        cpu:off?'—':Math.round(sel.cpu),temp:off?'—':sel.temp.toFixed(1),latency:off?'—':sel.latency.toFixed(1),uptime:sel.status==='rebooting'?0:sel.uptime},
+      rebootLabel:sel.status==='rebooting'?'Rebooting…':'Reboot device',
+      reboot:()=>this.reboot(sel.id),
+      rollout:[roll('Canary · 6 devices',100),roll('Lines A–B',100),roll('Lines C–D',s.rollCD),roll('Lines E–F',0,true)],
+    };
+  }
+}
+</script>
+</body>
+</html>
